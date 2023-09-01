@@ -1,0 +1,25 @@
+{
+  "name": "qrtool",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ant-design-vue": "4.x",
+    "axios": "^1.5.0",
+    "sass": "^1.66.1",
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.2.3",
+    "electron": "^26.1.0",
+    "unplugin-vue-components": "^0.25.2",
+    "vite": "^4.4.5",
+    "vite-electron-plugin": "^0.8.2",
+    "vite-plugin-electron-renderer": "^0.14.5"
+  }
+}

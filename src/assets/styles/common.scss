@@ -1,0 +1,323 @@
+@use 'sass:math';
+
+.flex,
+[flex] {
+  display: flex;
+}
+
+.flex-row,
+[flex-row] {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-column,
+[flex-column] {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-center,
+[flex-center] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.align-start,
+[align-start] {
+  align-items: flex-start;
+}
+
+.align-end,
+[align-end] {
+  align-items: flex-end;
+}
+
+.align-center,
+[align-center] {
+  align-items: center;
+}
+
+.justify-between,
+[justify-between] {
+  justify-content: space-between;
+}
+
+.justify-around,
+[justify-around] {
+  justify-content: space-around;
+}
+
+.justify-center,
+[justify-center] {
+  justify-content: center;
+}
+
+.justify-end,
+[justify-end] {
+  justify-content: flex-end;
+}
+
+.ellipsis,
+[ellipsis] {
+  overflow: hidden;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+
+.t-c,
+[t-c] {
+  text-align: center;
+}
+
+.pre-wrap,
+[pre-wrap] {
+  white-space: pre-wrap;
+}
+
+.no-wrap,
+[no-wrap] {
+  white-space: nowrap;
+}
+
+// 2整数倍 margin,padding
+$i: 2;
+@while $i<=1000 {
+  $i: $i + 2;
+
+  .m-w-#{$i},
+  [m-w-#{$i}] {
+    min-width: #{$i}px !important;
+  }
+
+  .w-#{$i},
+  [w-#{$i}] {
+    width: #{$i}px !important;
+  }
+
+  .h-#{$i},
+  [h-#{$i}] {
+    height: #{$i}px !important;
+  }
+
+  .m-#{$i},
+  [m-#{$i}] {
+    margin: #{$i}px !important;
+  }
+
+  .m-t-#{$i},
+  [m-t-#{$i}] {
+    margin-top: #{$i}px !important;
+  }
+
+  .m-r-#{$i},
+  [m-r-#{$i}] {
+    margin-right: #{$i}px !important;
+  }
+
+  .m-b-#{$i},
+  [m-b-#{$i}] {
+    margin-bottom: #{$i}px !important;
+  }
+
+  .m-l-#{$i},
+  [m-l-#{$i}] {
+    margin-left: #{$i}px !important;
+  }
+
+  .p-#{$i},
+  [p-#{$i}] {
+    padding: #{$i}px !important;
+  }
+
+  .p-t-#{$i},
+  [p-t-#{$i}] {
+    padding-top: #{$i}px !important;
+  }
+
+  .p-r-#{$i},
+  [p-r-#{$i}] {
+    padding-right: #{$i}px !important;
+  }
+
+  .p-b-#{$i},
+  [p-b-#{$i}] {
+    padding-bottom: #{$i}px !important;
+  }
+
+  .p-l-#{$i},
+  [p-l-#{$i}] {
+    padding-left: #{$i}px !important;
+  }
+}
+
+// 5整数倍 margin,padding
+$i: 5;
+@while $i<=1000 {
+  $i: $i + 5;
+
+  @if math.div($i, 2) != 0 {
+    .h-#{$i},
+    [h-#{$i}] {
+      height: #{$i}px !important;
+    }
+
+    .m-w-#{$i},
+    [m-w-#{$i}] {
+      min-width: #{$i}px !important;
+    }
+
+    .w-#{$i},
+    [w-#{$i}] {
+      width: #{$i}px !important;
+    }
+
+    .m-#{$i},
+    [m-#{$i}] {
+      margin: #{$i}px !important;
+    }
+
+    .m-t-#{$i},
+    [m-t-#{$i}] {
+      margin-top: #{$i}px !important;
+    }
+
+    .m-r-#{$i},
+    [m-r-#{$i}] {
+      margin-right: #{$i}px !important;
+    }
+
+    .m-b-#{$i},
+    [m-b-#{$i}] {
+      margin-bottom: #{$i}px !important;
+    }
+
+    .m-l-#{$i},
+    [m-l-#{$i}] {
+      margin-left: #{$i}px !important;
+    }
+
+    .p-#{$i},
+    [p-#{$i}] {
+      padding: #{$i}px !important;
+    }
+
+    .p-t-#{$i},
+    [p-t-#{$i}] {
+      padding-top: #{$i}px !important;
+    }
+
+    .p-r-#{$i},
+    [p-r-#{$i}] {
+      padding-right: #{$i}px !important;
+    }
+
+    .p-b-#{$i},
+    [p-b-#{$i}] {
+      padding-bottom: #{$i}px !important;
+    }
+
+    .p-l-#{$i},
+    [p-l-#{$i}] {
+      padding-left: #{$i}px !important;
+    }
+  }
+}
+
+.m-l-auto,
+[m-l-auto] {
+  margin-left: auto !important;
+}
+
+.m-r-auto,[m-r-auto] {
+  margin-right: auto !important;
+}
+
+.c-d,
+[c-d] {
+  cursor: default;
+}
+
+.c-p,
+[c-p] {
+  cursor: pointer;
+}
+
+.c-zi,
+[c-zi] {
+  cursor: zoom-in;
+}
+
+.c-zo,
+[c-zo] {
+  cursor: zoom-out;
+}
+
+.c-na,
+[c-na] {
+  cursor: not-allowed;
+}
+
+.noselect,
+[noselect] {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+
+  -webkit-touch-callout: none;
+   -khtml-user-select: none;
+}
+
+.iconfont.he-close-icon {
+  line-height: 46px;
+
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+
+  width: 50px;
+  height: 50px;
+
+  color: #2d3436 !important;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.d-v,
+[d-v] {
+  width: 1px;
+  height: 14px;
+
+  background: rgba(186, 231, 255, 0.45);;
+}
+
+.divider,
+[divider] {
+  width: 8px;
+  height: 1px;
+  margin: 0 12px;
+
+  background-color: #d9d9d9;
+}
+
+.w-100p,
+[w-100p] {
+  width: 100% !important;
+}
+
+// 表格上方的按钮：例如批量删除
+.t-b,
+[t-b] {
+  width: 68px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  line-height: 22px;
+}
