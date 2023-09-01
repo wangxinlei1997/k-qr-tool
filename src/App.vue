@@ -2,7 +2,7 @@
  * @Author: 王欣磊
  * @Date: 2023-09-01 14:56:47
  * @LastEditors: 王欣磊
- * @LastEditTime: 2023-09-01 17:14:05
+ * @LastEditTime: 2023-09-01 17:35:37
  * @Description: 
  * @FilePath: /qrTool/src/App.vue
 -->
@@ -59,7 +59,8 @@ import axios from 'axios'
 const qrDataObj = reactive(qrData.slice(0, 2).map(_ => {
   _.status = 'blank'
   _.task = axios({
-    url: 'https://xiaob.work',
+    // https://njyj-social.njyjgl.cn
+    url: 'https://njyj-social.njyjgl.cn/spp_grid_social/answerQuestionController/saveAnswers'.replace('https://njyj-social.njyjgl.cn', 'https://xiaob.work'),
     method: 'POST',
     contentType: 'application/json;charset=utf-8',
     data: {
@@ -78,7 +79,7 @@ const qrDataObj = reactive(qrData.slice(0, 2).map(_ => {
         "file_f": []
       },
       "phone": "18105166078",
-      "placeId": "a0c3efab-eafb-4ed1-a6ec-c24addd00c2c"
+      "placeId": _.value
     }
   })
   return _
