@@ -2,7 +2,7 @@
  * @Author: 王欣磊
  * @Date: 2023-09-01 14:56:47
  * @LastEditors: 王欣磊
- * @LastEditTime: 2023-09-01 17:15:54
+ * @LastEditTime: 2023-09-01 20:40:26
  * @Description:
  * @FilePath: /qrTool/vite.config.js
  */
@@ -14,6 +14,9 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server:{
+    host:'0.0.0.0'
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),

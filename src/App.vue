@@ -2,7 +2,7 @@
  * @Author: 王欣磊
  * @Date: 2023-09-01 14:56:47
  * @LastEditors: 王欣磊
- * @LastEditTime: 2023-09-01 17:35:37
+ * @LastEditTime: 2023-09-01 20:37:56
  * @Description: 
  * @FilePath: /qrTool/src/App.vue
 -->
@@ -10,7 +10,8 @@
   <div class="container-app" flex-column align-center>
     <context-holder />
     <div flex-row flex-center class="header">
-      <a-button type="primary">
+      <a-switch m-r-10 v-model:checked="chunkFast" checked-children="高并发" un-checked-children="低并发" />
+      <a-button type="primary" @click="runAll" :loading="loadingRunAll">
         <template #icon>
           <CaretRightOutlined />
         </template>
@@ -20,13 +21,15 @@
     <table m-t-10 cellspacing="0">
       <thead>
         <tr>
+          <th>序号</th>
           <th>地点</th>
           <th>状态</th>
           <th>操作</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="i in qrDataObj" :key="i.name">
+        <tr v-for="(i, index) in qrDataObj" :key="i.name">
+          <td>{{ index + 1 }}</td>
           <td>{{ i.name }}</td>
           <td>
             <template v-if="i.status === 'blank'">
@@ -43,7 +46,7 @@
             </template>
           </td>
           <td>
-            <a-button size="small" type="primary">重试</a-button>
+            <a-button size="small" type="primary" @click="runOne(i)" :disabled="loadingRunAll">执行</a-button>
           </td>
         </tr>
       </tbody>
@@ -51,16 +54,20 @@
   </div>
 </template>
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import qrData from '@/assets/data/qrData.json'
 import '@/assets/styles/common.scss'
 import { CaretRightOutlined, MinusCircleTwoTone, LoadingOutlined, CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons-vue';
 import axios from 'axios'
-const qrDataObj = reactive(qrData.slice(0, 2).map(_ => {
+import { notification } from 'ant-design-vue';
+const [api, contextHolder] = notification.useNotification();
+const loadingRunAll = ref(false)
+const chunkFast = ref(false)
+const qrDataObj = reactive(qrData.map(_ => {
   _.status = 'blank'
-  _.task = axios({
+  _.task = {
     // https://njyj-social.njyjgl.cn
-    url: 'https://njyj-social.njyjgl.cn/spp_grid_social/answerQuestionController/saveAnswers'.replace('https://njyj-social.njyjgl.cn', 'https://xiaob.work'),
+    url: 'https://wxlde-cros.oregano-07cores.workers.dev/?https://njyj-social.njyjgl.cn/spp_grid_social/answerQuestionController/saveAnswers',
     method: 'POST',
     contentType: 'application/json;charset=utf-8',
     data: {
@@ -81,19 +88,82 @@ const qrDataObj = reactive(qrData.slice(0, 2).map(_ => {
       "phone": "18105166078",
       "placeId": _.value
     }
-  })
+  }
   return _
 }))
-
+async function runOne(item) {
+  item.status = 'loading'
+  try {
+    await axios(item.task.url, {
+      method: item.task.method,
+      headers: {
+        'Content-Type': item.task.contentType
+      },
+      data: item.task.data
+    })
+    item.status = 'success'
+  }
+  catch (err) {
+    item.status = 'error'
+    console.log(err)
+  }
+}
+async function runAll() {
+  loadingRunAll.value = true
+  const chunks = chunkFast.value ? 10 : 5
+  const tasks = qrDataObj.map(_ => {
+    return () => {
+      return new Promise((resolve, reject) => {
+        _.status = 'loading'
+        axios(_.task.url, {
+          method: _.task.method,
+          headers: {
+            'Content-Type': _.task.contentType
+          },
+          data: _.task.data
+        }).then(res => {
+          _.status = 'success'
+          resolve(res)
+        }).catch(err => {
+          _.status = 'error'
+          reject(err)
+        })
+      })
+    }
+  })
+  const chunksTasks = []
+  for (let i = 0; i < tasks.length; i += chunks) {
+    chunksTasks.push(tasks.slice(i, i + chunks))
+  }
+  // for of
+  for (const i of chunksTasks) {
+    try {
+      await Promise.all(i.map(_ => _()))
+    }
+    catch (err) {
+      console.log(err)
+    }
+  }
+  loadingRunAll.value = false
+  const successCount = qrDataObj.filter(_ => _.status === 'success').length
+  const errorCount = qrDataObj.filter(_ => _.status === 'error').length
+  api.success({
+    message: '执行成功',
+    description: `成功${successCount}个，失败${errorCount}个`
+  })
+}
 
 
 </script>
 <style scoped lang="scss">
 .container-app {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+  padding-bottom: 20px;
+  box-sizing: border-box;
   background-color: #fff;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 table {
@@ -111,7 +181,7 @@ table {
     padding: 10px;
   }
 
-  td:nth-child(n+2) {
+  td {
     text-align: center;
   }
 }
@@ -124,5 +194,6 @@ table {
   top: 0;
   // bottom shadow
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, .1);
+  z-index: 2;
 }
 </style>
