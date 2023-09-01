@@ -2,7 +2,7 @@
  * @Author: 王欣磊
  * @Date: 2023-09-01 14:56:47
  * @LastEditors: 王欣磊
- * @LastEditTime: 2023-09-01 20:37:56
+ * @LastEditTime: 2023-09-01 20:46:54
  * @Description: 
  * @FilePath: /qrTool/src/App.vue
 -->
