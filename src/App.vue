@@ -2,7 +2,7 @@
  * @Author: 王欣磊
  * @Date: 2023-09-01 14:56:47
  * @LastEditors: 王欣磊
- * @LastEditTime: 2023-09-01 20:46:54
+ * @LastEditTime: 2023-09-16 19:14:28
  * @Description: 
  * @FilePath: /qrTool/src/App.vue
 -->
@@ -46,7 +46,7 @@
             </template>
           </td>
           <td>
-            <a-button size="small" type="primary" @click="runOne(i)" :disabled="loadingRunAll">执行</a-button>
+            <a-button size="small" type="primary" @click="i.task" :disabled="loadingRunAll">执行</a-button>
           </td>
         </tr>
       </tbody>
@@ -60,90 +60,105 @@ import '@/assets/styles/common.scss'
 import { CaretRightOutlined, MinusCircleTwoTone, LoadingOutlined, CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons-vue';
 import axios from 'axios'
 import { notification } from 'ant-design-vue';
+const REQUEST_URL = 'https://wxlde-cros.oregano-07cores.workers.dev/?https://njyj-social.njyjgl.cn/spp_grid_social/answerQuestionController/saveAnswers'
 const [api, contextHolder] = notification.useNotification();
 const loadingRunAll = ref(false)
 const chunkFast = ref(false)
-const qrDataObj = reactive(qrData.map(_ => {
+const qrDataObj = reactive(qrData.map((_,index) => {
   _.status = 'blank'
-  _.task = {
-    // https://njyj-social.njyjgl.cn
-    url: 'https://wxlde-cros.oregano-07cores.workers.dev/?https://njyj-social.njyjgl.cn/spp_grid_social/answerQuestionController/saveAnswers',
-    method: 'POST',
-    contentType: 'application/json;charset=utf-8',
-    data: {
-      "answer": {
-        "answer_a": "0",
-        "file_a": [],
-        "answer_b": "0",
-        "file_b": [],
-        "answer_c": "0",
-        "file_c": [],
-        "answer_d": "1",
-        "file_d": [],
-        "answer_e": "1",
-        "file_e": [],
-        "answer_f": "1",
-        "file_f": []
-      },
-      "phone": "18105166078",
-      "placeId": _.value
-    }
+  _.task = () => {
+    return new Promise(async (resolve, reject) => {
+      qrDataObj[index].status = 'loading'
+      try {
+        await axios(REQUEST_URL, {
+          timeout: 30000,
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+          },
+          data: {
+            "answer": {
+              "answer_a": "0",
+              "file_a": [],
+              "answer_b": "0",
+              "file_b": [],
+              "answer_c": "0",
+              "file_c": [],
+              "answer_d": "1",
+              "file_d": [],
+              "answer_e": "1",
+              "file_e": [],
+              "answer_f": "1",
+              "file_f": []
+            },
+            "phone": "18105166078",
+            "placeId": _.value
+          }
+        })
+        // success
+        qrDataObj[index].status = 'success'
+        resolve()
+      } catch (error) {
+        // error
+        qrDataObj[index].status = 'error'
+        console.error(error)
+        reject(error)
+      }
+    })
   }
+  _.testTask = ()=>{
+    return new Promise((resolve,reject)=>{
+      qrDataObj[index].status = 'loading'
+      setTimeout(() => {
+        qrDataObj[index].status = 'success'
+        resolve()
+      }, Math.random()*2000);
+    })
+  }
+
   return _
 }))
-async function runOne(item) {
-  item.status = 'loading'
-  try {
-    await axios(item.task.url, {
-      method: item.task.method,
-      headers: {
-        'Content-Type': item.task.contentType
-      },
-      data: item.task.data
-    })
-    item.status = 'success'
+
+function concurrentRequest(promises,concurrentCount){
+  let index = 0;
+  let doneCount = 0
+  const res = []
+  if(promises.length === 0 ){
+    return []
   }
-  catch (err) {
-    item.status = 'error'
-    console.log(err)
+  return new Promise((resolve,reject)=>{
+    async function next() {
+    const currentIndex = index
+    const promise = promises[currentIndex]
+    index++
+    try {
+      const r = await promise()
+      res[currentIndex] = r
+    } catch (error) {
+      res[currentIndex] = error
+    }finally{
+      doneCount++
+      if(doneCount >= promises.length){
+        resolve(res)
+      }
+      if(index < promises.length){
+        next()
+      }else{
+        return
+      }
+    }
   }
+
+    for(let i=0;i<Math.min(concurrentCount,promises.length);i++){
+      next()
+    }
+  })
 }
 async function runAll() {
   loadingRunAll.value = true
   const chunks = chunkFast.value ? 10 : 5
-  const tasks = qrDataObj.map(_ => {
-    return () => {
-      return new Promise((resolve, reject) => {
-        _.status = 'loading'
-        axios(_.task.url, {
-          method: _.task.method,
-          headers: {
-            'Content-Type': _.task.contentType
-          },
-          data: _.task.data
-        }).then(res => {
-          _.status = 'success'
-          resolve(res)
-        }).catch(err => {
-          _.status = 'error'
-          reject(err)
-        })
-      })
-    }
-  })
-  const chunksTasks = []
-  for (let i = 0; i < tasks.length; i += chunks) {
-    chunksTasks.push(tasks.slice(i, i + chunks))
-  }
-  // for of
-  for (const i of chunksTasks) {
-    try {
-      await Promise.all(i.map(_ => _()))
-    }
-    catch (err) {
-      console.log(err)
-    }
-  }
+  await concurrentRequest(qrDataObj.map(_ => _.task), chunks)
+
   loadingRunAll.value = false
   const successCount = qrDataObj.filter(_ => _.status === 'success').length
   const errorCount = qrDataObj.filter(_ => _.status === 'error').length
